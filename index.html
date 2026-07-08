@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>职业知识库</title>
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE9;
+  --border: #E5E2DA;
+  --text: #1A1A1A;
+  --text2: #6B6860;
+  --text3: #A8A49C;
+  --accent: #2C4A6E;
+  --accent2: #4A7FA5;
+  --gold: #C8922A;
+  --gold-bg: rgba(200,146,42,0.1);
+  --green: #3A7D5A;
+  --green-bg: rgba(58,125,90,0.1);
+  --purple: #5A4A8A;
+  --purple-bg: rgba(90,74,138,0.1);
+  --red: #B84040;
+  --red-bg: rgba(184,64,64,0.08);
+  --radius: 10px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+}
+body { font-family: -apple-system, "PingFang SC", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+/* ── Layout ── */
+.app { display: grid; grid-template-rows: 56px 1fr; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.topbar { grid-column: 1/-1; background: var(--accent); display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+.topbar-logo { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.3px; }
+.topbar-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-left: 2px; }
+.topbar-spacer { flex: 1; }
+.topbar-date { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; gap: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; border-radius: 0; font-size: 13px; font-weight: 500; color: var(--text2); transition: all 0.15s; border-left: 3px solid transparent; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: rgba(44,74,110,0.07); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-section { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text3); padding: 16px 20px 6px; text-transform: uppercase; }
+
+.main { overflow-y: auto; padding: 28px 32px; }
+
+/* ── Cards ── */
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; box-shadow: var(--shadow); }
+.card + .card { margin-top: 16px; }
+.card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── Page headers ── */
+.page-header { margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+/* ── Form elements ── */
+input, textarea, select { font-family: inherit; font-size: 14px; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; outline: none; transition: border 0.15s; width: 100%; }
+input:focus, textarea:focus, select:focus { border-color: var(--accent2); background: #fff; }
+textarea { resize: vertical; line-height: 1.7; }
+label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-row { margin-bottom: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── Buttons ── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #1e3a5c; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid rgba(184,64,64,0.2); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* ── Tags ── */
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.tag-remove { font-size: 14px; line-height: 1; opacity: 0.6; }
+.tag-remove:hover { opacity: 1; }
+.tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* ── Entry card ── */
+.entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); transition: box-shadow 0.15s; }
+.entry-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.entry-card + .entry-card { margin-top: 12px; }
+.entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.entry-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
+.entry-date { font-size: 11px; color: var(--text3); white-space: nowrap; margin-left: 12px; }
+.entry-content { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; }
+.entry-footer { display: flex; align-items: center; justify-content: space-between; }
+.entry-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+.entry-card:hover .entry-actions { opacity: 1; }
+
+/* ── Tree (archive) ── */
+.tree-folder { margin-bottom: 4px; }
+.tree-folder-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--text); transition: background 0.15s; user-select: none; }
+.tree-folder-header:hover { background: var(--surface2); }
+.tree-chevron { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+.tree-chevron.open { transform: rotate(90deg); }
+.tree-children { padding-left: 20px; display: none; }
+.tree-children.open { display: block; }
+.tree-leaf { display: flex; align-items: center; gap: 8px; padding: 7px 12px; cursor: pointer; border-radius: 8px; font-size: 13px; color: var(--text2); transition: all 0.15s; }
+.tree-leaf:hover { background: var(--surface2); color: var(--text); }
+.tree-leaf.active { background: rgba(44,74,110,0.08); color: var(--accent); font-weight: 600; }
+.tree-count { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+/* ── Archive layout ── */
+.archive-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; }
+.archive-sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; height: fit-content; box-shadow: var(--shadow); }
+.archive-content { min-width: 0; }
+
+/* ── Search & filter ── */
+.search-bar { position: relative; }
+.search-bar input { padding-left: 36px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ── Mind map ── */
+/* Library / file drop */
+.drop-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface); }
+.drop-zone:hover { border-color: var(--accent2); background: rgba(74,127,165,0.03); }
+.drop-zone.dragover { border-color: var(--accent); background: rgba(44,74,110,0.06); transform: scale(1.01); }
+.drop-icon { font-size: 36px; margin-bottom: 10px; }
+.drop-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.drop-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+.file-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); transition: box-shadow 0.15s; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.file-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+.file-card-icon { font-size: 34px; margin-bottom: 8px; }
+.file-card-name { font-size: 13px; font-weight: 600; color: var(--text); word-break: break-all; line-height: 1.4; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.file-card-meta { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.file-card-actions { display: flex; gap: 6px; margin-top: auto; }
+
+/* ── Skill radar ── */
+#radar-canvas { display: block; margin: 0 auto; }
+.radar-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 16px; }
+.radar-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+.radar-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── Stats ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; box-shadow: var(--shadow); }
+.stat-num { font-size: 28px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── Tag manager ── */
+.tag-manage-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.tag-manage-row:last-child { border-bottom: none; }
+.color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.color-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.color-swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
+.color-swatch.selected { border-color: var(--text); transform: scale(1.15); }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(2px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: 14px; padding: 28px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
+
+/* ── Divider ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 56px auto 1fr; }
+  .sidebar { grid-row: 2; flex-direction: row; overflow-x: auto; padding: 8px; border-right: none; border-bottom: 1px solid var(--border); }
+  .nav-section { display: none; }
+  .nav-item { padding: 8px 14px; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .nav-item.active { border-bottom-color: var(--accent); border-left-color: transparent; }
+  .main { padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .archive-layout { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <span class="topbar-logo">职业知识库</span>
+      <span class="topbar-sub">/ Knowledge Base</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-date" id="topbarDate"></div>
+  </div>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="nav-section">记录</div>
+    <div class="nav-item active" onclick="showPage('record')" id="nav-record">
+      <span class="nav-icon">✏️</span>今日记录
+    </div>
+    <div class="nav-section">查阅</div>
+    <div class="nav-item" onclick="showPage('archive')" id="nav-archive">
+      <span class="nav-icon">🗂️</span>知识档案
+    </div>
+    <div class="nav-item" onclick="showPage('library')" id="nav-library">
+      <span class="nav-icon">📎</span>资料库
+    </div>
+    <div class="nav-item" onclick="showPage('radar')" id="nav-radar">
+      <span class="nav-icon">📡</span>能力雷达
+    </div>
+    <div class="nav-section">设置</div>
+    <div class="nav-item" onclick="showPage('tags')" id="nav-tags">
+      <span class="nav-icon">🏷️</span>标签管理
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main" id="mainContent"></main>
+</div>
+
+<!-- Entry modal (edit) -->
+<div class="modal-overlay" id="entryModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">编辑记录</div>
+    <div class="form-row"><label>标题</label><input id="editTitle" placeholder="这次学到的核心是什么？" /></div>
+    <div class="form-row"><label>内容 / 感悟</label><textarea id="editContent" rows="7" placeholder="详细记录..."></textarea></div>
+    <div class="form-row">
+      <label>标签</label>
+      <div id="editTagPicker" class="tags-row" style="margin-top:6px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Storage key ───────────────────────────────────────────
+const SK = "kb-v1";
+
+// ── Default tags ──────────────────────────────────────────
+const DEFAULT_TAGS = [
+  { id:"t1",  name:"合同管理",    color:"#2C4A6E" },
+  { id:"t2",  name:"索赔",        color:"#B84040" },
+  { id:"t3",  name:"FIDIC",       color:"#5A4A8A" },
+  { id:"t4",  name:"光伏/新能源", color:"#3A7D5A" },
+  { id:"t5",  name:"商务英语",    color:"#C8922A" },
+  { id:"t6",  name:"谈判技巧",    color:"#4A7FA5" },
+  { id:"t7",  name:"项目管理",    color:"#7A5A3A" },
+  { id:"t8",  name:"法律条款",    color:"#6A3A6A" },
+  { id:"t9",  name:"行业知识",    color:"#2A6A5A" },
+  { id:"t10", name:"工作感悟",    color:"#8A6A2A" },
+];
+
+const TAG_COLORS = ["#2C4A6E","#B84040","#5A4A8A","#3A7D5A","#C8922A","#4A7FA5","#7A5A3A","#6A3A6A","#2A6A5A","#8A6A2A","#4A5A8A","#6A4A2A"];
+
+// ── State ─────────────────────────────────────────────────
+let S = load();
+let currentPage = "record";
+let editingId = null;
+let archiveFilter = { year: null, month: null, tag: null, search: "" };
+
+
+function load() {
+  try {
+    const r = localStorage.getItem(SK);
+    const d = r ? JSON.parse(r) : {};
+    if (!d.entries) d.entries = [];
+    if (!d.tags) d.tags = DEFAULT_TAGS;
+    if (!d.draftTitle) d.draftTitle = "";
+    if (!d.draftContent) d.draftContent = "";
+    if (!d.draftTags) d.draftTags = [];
+    return d;
+  } catch { return { entries:[], tags:DEFAULT_TAGS, draftTitle:"", draftContent:"", draftTags:[] }; }
+}
+function save() { try { localStorage.setItem(SK, JSON.stringify(S)); } catch {} }
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function today() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtDate(s) { const p=s.split('-'); return `${p[0]}年${parseInt(p[1])}月${parseInt(p[2])}日`; }
+function getTag(id) { return S.tags.find(t=>t.id===id); }
+function tagStyle(id) { const t=getTag(id); if(!t) return ''; return `background:${t.color}22;color:${t.color};border:1px solid ${t.color}44`; }
+
+// ── Page routing ──────────────────────────────────────────
+function showPage(p) {
+  currentPage = p;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-'+p)?.classList.add('active');
+  const main = document.getElementById('mainContent');
+  if (p==='record') renderRecord(main);
+  else if (p==='archive') renderArchive(main);
+  else if (p==='library') renderLibrary(main);
+  else if (p==='radar') renderRadar(main);
+  else if (p==='tags') renderTags(main);
+}
+
+// ── Page 1: Record ────────────────────────────────────────
+function renderRecord(el) {
+  const recent = [...S.entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">今日记录</div>
+      <div class="page-sub">${fmtDate(today())} · 记录今天学到的新知识或感悟</div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="form-row"><label>标题 Title</label><input id="recTitle" value="${escHtml(S.draftTitle)}" placeholder="这次学到的核心是什么？" oninput="saveDraft('title',this.value)" /></div>
+      <div class="form-row"><label>内容 Content</label><textarea id="recContent" rows="6" placeholder="详细记录学习内容、操作步骤、关键引用、个人感悟..." oninput="saveDraft('content',this.value)">${escHtml(S.draftContent)}</textarea></div>
+      <div class="form-row">
+        <label>标签 Tags</label>
+        <div class="tags-row" id="recTagPicker"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+        <button class="btn btn-secondary" onclick="clearDraft()">清空</button>
+        <button class="btn btn-primary" onclick="submitEntry()">💾 保存记录</button>
+      </div>
+    </div>
+    ${recent.length ? `<div class="card-title" style="margin-bottom:12px;font-size:13px;color:var(--text2)">最近记录</div>` : ''}
+    <div id="recentList"></div>`;
+
+  renderTagPicker('recTagPicker', S.draftTags, id => {
+    if (S.draftTags.includes(id)) S.draftTags = S.draftTags.filter(x=>x!==id);
+    else S.draftTags.push(id);
+    save(); showPage('record');
+  });
+
+  const rl = document.getElementById('recentList');
+  if (!recent.length) { rl.innerHTML = '<div class="empty"><div class="empty-icon">✏️</div><div class="empty-text">还没有记录，今天开始第一条</div></div>'; return; }
+  recent.forEach(e => rl.appendChild(makeEntryCard(e)));
+}
+
+function saveDraft(field, val) {
+  if (field==='title') S.draftTitle=val;
+  else S.draftContent=val;
+  save();
+}
+function clearDraft() { S.draftTitle=''; S.draftContent=''; S.draftTags=[]; save(); showPage('record'); }
+function submitEntry() {
+  const title = document.getElementById('recTitle').value.trim();
+  const content = document.getElementById('recContent').value.trim();
+  if (!title) { document.getElementById('recTitle').focus(); return; }
+  const entry = { id:genId(), date:today(), title, content, tags:[...S.draftTags] };
+  S.entries.unshift(entry);
+  S.draftTitle=''; S.draftContent=''; S.draftTags=[];
+  save(); showPage('record');
+}
+
+// ── Page 2: Archive ───────────────────────────────────────
+function renderArchive(el) {
+  const years = {};
+  S.entries.forEach(e => {
+    const [y,m] = e.date.split('-');
+    if (!years[y]) years[y]={};
+    if (!years[y][m]) years[y][m]=0;
+    years[y][m]++;
+  });
+
+  let treeHTML = '';
+  Object.keys(years).sort((a,b)=>b-a).forEach(y => {
+    const yOpen = archiveFilter.year===y;
+    treeHTML += `<div class="tree-folder">
+      <div class="tree-folder-header" onclick="setFilter('year','${y}')">
+        <span class="tree-chevron ${yOpen?'open':''}">›</span>
+        <span>📁 ${y}年</span>
+        <span class="tree-count">${Object.values(years[y]).reduce((a,b)=>a+b,0)}</span>
+      </div>
+      <div class="tree-children ${yOpen?'open':''}">`;
+    Object.keys(years[y]).sort((a,b)=>b-a).forEach(m => {
+      const active = archiveFilter.year===y && archiveFilter.month===m;
+      treeHTML += `<div class="tree-leaf ${active?'active':''}" onclick="setFilter('month','${m}','${y}')">
+        <span>📄 ${parseInt(m)}月</span><span class="tree-count">${years[y][m]}</span></div>`;
+    });
+    treeHTML += `</div></div>`;
+  });
+
+  // Tag filter tree
+  treeHTML += `<hr class="divider"><div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">按标签筛选</div>`;
+  S.tags.forEach(t => {
+    const cnt = S.entries.filter(e=>e.tags.includes(t.id)).length;
+    if (!cnt) return;
+    treeHTML += `<div class="tree-leaf ${archiveFilter.tag===t.id?'active':''}" onclick="setFilter('tag','${t.id}')">
+      <span class="color-dot" style="background:${t.color}"></span>${t.name}<span class="tree-count">${cnt}</span></div>`;
+  });
+
+  if (Object.keys(years).length || archiveFilter.year || archiveFilter.tag) {
+    treeHTML += `<div style="margin-top:12px"><button class="btn btn-secondary btn-sm" onclick="clearFilter()">清除筛选</button></div>`;
+  }
+
+  // Filter entries
+  let filtered = [...S.entries];
+  if (archiveFilter.year) filtered = filtered.filter(e=>e.date.startsWith(archiveFilter.year));
+  if (archiveFilter.month) filtered = filtered.filter(e=>e.date.split('-')[1]===archiveFilter.month);
+  if (archiveFilter.tag) filtered = filtered.filter(e=>e.tags.includes(archiveFilter.tag));
+  if (archiveFilter.search) {
+    const q = archiveFilter.search.toLowerCase();
+    filtered = filtered.filter(e=>e.title.toLowerCase().includes(q)||e.content.toLowerCase().includes(q));
+  }
+  filtered.sort((a,b)=>b.date.localeCompare(a.date));
+
+  // Determine current archive scope label for PDF export
+  let scopeLabel = '全部记录';
+  if (archiveFilter.year && archiveFilter.month) scopeLabel = `${archiveFilter.year}年${parseInt(archiveFilter.month)}月`;
+  else if (archiveFilter.year) scopeLabel = `${archiveFilter.year}年`;
+  else if (archiveFilter.tag) scopeLabel = getTag(archiveFilter.tag)?.name || '标签';
+
+  el.innerHTML = `
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="page-title">知识档案</div>
+        <div class="page-sub">共 ${S.entries.length} 条记录 · 当前查看：${scopeLabel}（${filtered.length}条）</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="exportArchivePDF()">🖨️ 导出当前为 PDF</button>
+    </div>
+    <div class="archive-layout">
+      <div class="archive-sidebar">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)">📁 浏览</div>
+        ${treeHTML}
+      </div>
+      <div class="archive-content">
+        <div class="search-bar" style="margin-bottom:14px">
+          <span class="search-icon">🔍</span>
+          <input placeholder="搜索标题或内容..." value="${escHtml(archiveFilter.search)}" oninput="setSearch(this.value)" />
+        </div>
+        ${filtered.length ? filtered.map(e=>makeEntryCard(e).outerHTML).join('') : '<div class="empty"><div class="empty-icon">🗂️</div><div class="empty-text">没有符合条件的记录</div></div>'}
+      </div>
+    </div>`;
+
+  // Re-attach event listeners for entry cards
+  el.querySelectorAll('.entry-edit-btn').forEach(btn => {
+    btn.onclick = () => openEdit(btn.dataset.id);
+  });
+  el.querySelectorAll('.entry-del-btn').forEach(btn => {
+    btn.onclick = () => deleteEntry(btn.dataset.id);
+  });
+}
+
+function setFilter(type, val, year) {
+  if (type==='year') { archiveFilter.year = archiveFilter.year===val?null:val; archiveFilter.month=null; archiveFilter.tag=null; }
+  else if (type==='month') { archiveFilter.year=year; archiveFilter.month=archiveFilter.month===val?null:val; archiveFilter.tag=null; }
+  else if (type==='tag') { archiveFilter.tag=archiveFilter.tag===val?null:val; archiveFilter.year=null; archiveFilter.month=null; }
+  showPage('archive');
+}
+function clearFilter() { archiveFilter={year:null,month:null,tag:null,search:""}; showPage('archive'); }
+function setSearch(v) { archiveFilter.search=v; showPage('archive'); }
+
+function makeEntryCard(e) {
+  const div = document.createElement('div');
+  div.className = 'entry-card';
+  const tagsHTML = e.tags.map(id=>{
+    const t=getTag(id); if(!t) return '';
+    return `<span class="tag" style="${tagStyle(id)}">${t.name}</span>`;
+  }).join('');
+  div.innerHTML = `
+    <div class="entry-header">
+      <div class="entry-title">${escHtml(e.title)}</div>
+      <div class="entry-date">${fmtDate(e.date)}</div>
+    </div>
+    <div class="entry-content">${escHtml(e.content.length>200?e.content.slice(0,200)+'…':e.content)}</div>
+    <div class="entry-footer">
+      <div class="tags-row">${tagsHTML}</div>
+      <div class="entry-actions">
+        <button class="btn btn-secondary btn-sm entry-edit-btn" data-id="${e.id}">编辑</button>
+        <button class="btn btn-danger btn-sm entry-del-btn" data-id="${e.id}">删除</button>
+      </div>
+    </div>`;
+  div.querySelector('.entry-edit-btn').onclick = () => openEdit(e.id);
+  div.querySelector('.entry-del-btn').onclick = () => deleteEntry(e.id);
+  return div;
+}
+
+// ── Edit modal ────────────────────────────────────────────
+function openEdit(id) {
+  editingId = id;
+  const e = S.entries.find(x=>x.id===id); if(!e) return;
+  document.getElementById('modalTitle').textContent = '编辑记录';
+  document.getElementById('editTitle').value = e.title;
+  document.getElementById('editContent').value = e.content;
+  renderTagPicker('editTagPicker', e.tags, tid => {
+    const cur = S.entries.find(x=>x.id===editingId);
+    if (!cur) return;
+    if (cur.tags.includes(tid)) cur.tags=cur.tags.filter(x=>x!==tid);
+    else cur.tags.push(tid);
+    save(); renderTagPicker('editTagPicker', cur.tags, arguments.callee);
+  });
+  document.getElementById('entryModal').classList.add('open');
+}
+function closeModal() { document.getElementById('entryModal').classList.remove('open'); editingId=null; }
+function saveEdit() {
+  const e=S.entries.find(x=>x.id===editingId); if(!e) return;
+  e.title=document.getElementById('editTitle').value.trim()||e.title;
+  e.content=document.getElementById('editContent').value;
+  save(); closeModal(); showPage(currentPage);
+}
+function deleteEntry(id) {
+  if (!confirm('确认删除这条记录？')) return;
+  S.entries=S.entries.filter(e=>e.id!==id); save(); showPage(currentPage);
+}
+
+// ── Tag picker ────────────────────────────────────────────
+function renderTagPicker(containerId, selected, onToggle) {
+  const el=document.getElementById(containerId); if(!el) return;
+  el.innerHTML='';
+  S.tags.forEach(t=>{
+    const isSel=selected.includes(t.id);
+    const span=document.createElement('span');
+    span.className='tag';
+    span.style.cssText=isSel?tagStyle(t.id):`background:var(--surface2);color:var(--text2);border:1px solid var(--border)`;
+    span.textContent=(isSel?'✓ ':'')+t.name;
+    span.onclick=()=>onToggle(t.id);
+    el.appendChild(span);
+  });
+}
+
+// ── Page 3: Library (file attachments via IndexedDB) ──────
+function renderLibrary(el) {
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">资料库</div>
+      <div class="page-sub">拖入文件本地收藏 · 支持 PDF / 图片 / Word / Excel 等 · 数据存在本机，可导出迁移</div>
+    </div>
+    <div id="dropZone" class="drop-zone">
+      <div class="drop-icon">📎</div>
+      <div class="drop-title">拖入文件，或点击选择</div>
+      <div class="drop-sub">文件保存在本机浏览器，不会上传到任何服务器</div>
+      <input type="file" id="fileInput" multiple style="display:none" />
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px">
+      <div class="card-title" style="margin:0">已收藏文件 <span id="fileCount" style="color:var(--text3);font-weight:400"></span></div>
+      <div class="search-bar" style="width:220px">
+        <span class="search-icon">🔍</span>
+        <input placeholder="搜索文件名..." oninput="filterFiles(this.value)" id="fileSearch" style="padding:8px 8px 8px 34px" />
+      </div>
+    </div>
+    <div id="fileGrid" class="file-grid"></div>`;
+
+  const dz = document.getElementById('dropZone');
+  const input = document.getElementById('fileInput');
+  dz.onclick = () => input.click();
+  input.onchange = e => handleFiles(e.target.files);
+  dz.ondragover = e => { e.preventDefault(); dz.classList.add('dragover'); };
+  dz.ondragleave = () => dz.classList.remove('dragover');
+  dz.ondrop = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFiles(e.dataTransfer.files); };
+
+  loadFileList();
+}
+
+let fileSearchQuery = '';
+
+function fileIcon(type, name) {
+  const ext = (name.split('.').pop()||'').toLowerCase();
+  if (type.startsWith('image/')) return '🖼️';
+  if (ext==='pdf') return '📕';
+  if (['doc','docx'].includes(ext)) return '📘';
+  if (['xls','xlsx','csv'].includes(ext)) return '📗';
+  if (['ppt','pptx'].includes(ext)) return '📙';
+  if (['zip','rar','7z'].includes(ext)) return '🗜️';
+  if (['txt','md'].includes(ext)) return '📄';
+  return '📎';
+}
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+async function handleFiles(fileList) {
+  for (const file of fileList) {
+    if (file.size > 25 * 1048576) {
+      alert(`文件「${file.name}」超过 25MB，跳过。大文件建议存在云盘。`);
+      continue;
+    }
+    const buffer = await file.arrayBuffer();
+    const record = {
+      id: genId(),
+      name: file.name,
+      type: file.type || 'application/octet-stream',
+      size: file.size,
+      date: today(),
+      blob: buffer,
+    };
+    await idbPut(record);
+  }
+  loadFileList();
+}
+
+async function loadFileList() {
+  const grid = document.getElementById('fileGrid');
+  const countEl = document.getElementById('fileCount');
+  if (!grid) return;
+  let files = await idbGetAll();
+  files.sort((a,b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  if (countEl) countEl.textContent = `(${files.length})`;
+  if (fileSearchQuery) files = files.filter(f => f.name.toLowerCase().includes(fileSearchQuery.toLowerCase()));
+
+  if (!files.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📎</div><div class="empty-text">' + (fileSearchQuery ? '没有匹配的文件' : '还没有收藏文件，拖入试试') + '</div></div>';
+    return;
+  }
+  grid.innerHTML = files.map(f => `
+    <div class="file-card">
+      <div class="file-card-icon">${fileIcon(f.type, f.name)}</div>
+      <div class="file-card-name" title="${escHtml(f.name)}">${escHtml(f.name)}</div>
+      <div class="file-card-meta">${fmtSize(f.size)} · ${f.date}</div>
+      <div class="file-card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="downloadFile('${f.id}')">下载</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}')">删除</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterFiles(q) { fileSearchQuery = q; loadFileList(); }
+
+async function downloadFile(id) {
+  const f = await idbGet(id); if (!f) return;
+  const blob = new Blob([f.blob], { type: f.type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = f.name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+async function deleteFile(id) {
+  if (!confirm('删除这个文件？')) return;
+  await idbDelete(id); loadFileList();
+}
+
+// ── IndexedDB helpers ─────────────────────────────────────
+let _db = null;
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    if (_db) return resolve(_db);
+    const req = indexedDB.open('kb-files', 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'id' });
+    };
+    req.onsuccess = e => { _db = e.target.result; resolve(_db); };
+    req.onerror = e => reject(e);
+  });
+}
+async function idbPut(record) {
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('files', 'readwrite');
+    tx.objectStore('files').put(record);
+    tx.oncomplete = res; tx.onerror = rej;
+  });
+}
+async function idbGet(id) {
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const req = db.transaction('files', 'readonly').objectStore('files').get(id);
+    req.onsuccess = () => res(req.result); req.onerror = rej;
+  });
+}
+async function idbGetAll() {
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const req = db.transaction('files', 'readonly').objectStore('files').getAll();
+    req.onsuccess = () => res(req.result || []); req.onerror = rej;
+  });
+}
+async function idbDelete(id) {
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('files', 'readwrite');
+    tx.objectStore('files').delete(id);
+    tx.oncomplete = res; tx.onerror = rej;
+  });
+}
+
+// ── Page 4: Radar ─────────────────────────────────────────
+function renderRadar(el) {
+  // Calculate score per tag: entries count + recency bonus
+  const tagScores={};
+  const now=new Date();
+  S.tags.forEach(t=>{ tagScores[t.id]=0; });
+  S.entries.forEach(e=>{
+    const daysAgo=(now-new Date(e.date))/86400000;
+    const recency=Math.max(0,1-daysAgo/180);
+    e.tags.forEach(tid=>{ if(tagScores[tid]!==undefined) tagScores[tid]+= 1+recency; });
+  });
+
+  // Normalize 0-100
+  const maxScore=Math.max(...Object.values(tagScores),1);
+  const scores=S.tags.map(t=>({ tag:t, score:Math.round(tagScores[t.id]/maxScore*100) }));
+  const sorted=[...scores].sort((a,b)=>b.score-a.score);
+
+  el.innerHTML=`
+    <div class="page-header">
+      <div class="page-title">能力雷达</div>
+      <div class="page-sub">基于记录频率和时间近度自动计算，越多越近的记录权重越高</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">${S.entries.length}</div><div class="stat-label">总记录数</div></div>
+      <div class="stat-card"><div class="stat-num">${scores.filter(s=>s.score>0).length}</div><div class="stat-label">涉及领域</div></div>
+      <div class="stat-card"><div class="stat-num">${sorted[0]?.tag.name||'—'}</div><div class="stat-label">最强领域</div></div>
+      <div class="stat-card"><div class="stat-num">${sorted.filter(s=>s.score>0).slice(-1)[0]?.tag.name||'—'}</div><div class="stat-label">待加强</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card">
+        <div class="card-title">📡 雷达图</div>
+        <canvas id="radar-canvas" width="320" height="320"></canvas>
+        <div class="radar-legend" id="radarLegend"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 领域排名</div>
+        ${sorted.map((s,i)=>`
+          <div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="display:flex;align-items:center;gap:6px">
+                <span style="width:8px;height:8px;border-radius:50%;background:${s.tag.color};display:inline-block"></span>
+                <span style="font-size:13px;font-weight:${i<3?700:400};color:${i<3?'var(--text)':'var(--text2)'}">${s.tag.name}</span>
+              </span>
+              <span style="font-size:12px;color:var(--text3)">${s.score}%</span>
+            </div>
+            <div class="prog-bar-bg">
+              <div style="width:${s.score}%;height:7px;border-radius:4px;background:${s.tag.color};transition:width 0.6s"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  setTimeout(()=>drawRadar(scores), 50);
+}
+
+function drawRadar(scores) {
+  const canvas=document.getElementById('radar-canvas'); if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=320,H=320,cx=160,cy=160,r=120;
+  ctx.clearRect(0,0,W,H);
+
+  const active=scores.filter(s=>s.score>0);
+  if (!active.length) { ctx.fillStyle='#AAA'; ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.fillText('还没有记录', cx, cy); return; }
+
+  const n=active.length;
+  const step=2*Math.PI/n;
+  const levels=[20,40,60,80,100];
+
+  // Grid
+  levels.forEach(lv=>{
+    ctx.beginPath();
+    active.forEach((_,i)=>{ const a=step*i-Math.PI/2; const x=cx+Math.cos(a)*r*lv/100,y=cy+Math.sin(a)*r*lv/100; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.closePath(); ctx.strokeStyle='#E5E2DA'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Axes
+  active.forEach((_,i)=>{ const a=step*i-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); ctx.strokeStyle='#E5E2DA'; ctx.lineWidth=1; ctx.stroke(); });
+
+  // Data polygon
+  ctx.beginPath();
+  active.forEach((s,i)=>{ const a=step*i-Math.PI/2; const x=cx+Math.cos(a)*r*s.score/100,y=cy+Math.sin(a)*r*s.score/100; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.closePath(); ctx.fillStyle='rgba(44,74,110,0.15)'; ctx.fill();
+  ctx.strokeStyle='#2C4A6E'; ctx.lineWidth=2; ctx.stroke();
+
+  // Dots & labels
+  active.forEach((s,i)=>{
+    const a=step*i-Math.PI/2;
+    const x=cx+Math.cos(a)*r*s.score/100,y=cy+Math.sin(a)*r*s.score/100;
+    ctx.beginPath(); ctx.arc(x,y,5,0,2*Math.PI);
+    ctx.fillStyle=s.tag.color; ctx.fill();
+    const lx=cx+Math.cos(a)*(r+22),ly=cy+Math.sin(a)*(r+22);
+    ctx.fillStyle='#444'; ctx.font='11px system-ui'; ctx.textAlign='center';
+    ctx.fillText(s.tag.name.length>5?s.tag.name.slice(0,5)+'…':s.tag.name, lx, ly+4);
+  });
+
+  // Legend
+  const leg=document.getElementById('radarLegend'); if(!leg) return;
+  leg.innerHTML=active.map(s=>`<div class="radar-legend-item"><div class="radar-legend-dot" style="background:${s.tag.color}"></div>${s.tag.name} ${s.score}%</div>`).join('');
+}
+
+// ── Page 5: Tags ──────────────────────────────────────────
+function renderTags(el) {
+  el.innerHTML=`
+    <div class="page-header">
+      <div class="page-title">标签管理</div>
+      <div class="page-sub">添加、修改、删除标签，颜色可自定义</div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">添加新标签</div>
+      <div class="form-grid">
+        <div class="form-row"><label>标签名称</label><input id="newTagName" placeholder="例：风险管理" /></div>
+        <div class="form-row"><label>颜色</label><div class="color-picker" id="newTagColorPicker"></div></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="addTag()" style="margin-top:4px">添加标签</button>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">现有标签</div>
+      <div id="tagList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💾 数据备份与迁移</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        所有记录和资料文件都保存在这台电脑的浏览器里。点「导出全部数据」会把知识记录、标签和所有资料文件打包成一个 JSON 文件下载下来。换电脑时，先在旧电脑「导出」，再到新电脑打开同一网址「导入」这个 JSON 文件，即可完整迁移。建议每月导出一次作为备份。
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="exportAllData()">⬇️ 导出全部数据</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importInput').click()">⬆️ 导入数据</button>
+        <input type="file" id="importInput" accept=".json" style="display:none" onchange="importAllData(this)" />
+      </div>
+    </div>`;
+
+  let selectedColor=TAG_COLORS[0];
+  const picker=document.getElementById('newTagColorPicker');
+  TAG_COLORS.forEach(c=>{
+    const sw=document.createElement('div');
+    sw.className='color-swatch'+(c===selectedColor?' selected':'');
+    sw.style.background=c;
+    sw.onclick=()=>{ selectedColor=c; renderTags(el); };
+    picker.appendChild(sw);
+  });
+
+  // Store selected color for addTag
+  window._newTagColor=selectedColor;
+
+  const list=document.getElementById('tagList');
+  S.tags.forEach(t=>{
+    const cnt=S.entries.filter(e=>e.tags.includes(t.id)).length;
+    const row=document.createElement('div');
+    row.className='tag-manage-row';
+    row.innerHTML=`
+      <div class="color-dot" style="background:${t.color}"></div>
+      <span class="tag" style="${tagStyle(t.id)}">${t.name}</span>
+      <input style="flex:1;max-width:160px" value="${escHtml(t.name)}" oninput="updateTagName('${t.id}',this.value)" />
+      <span style="font-size:12px;color:var(--text3)">${cnt}条记录</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteTag('${t.id}')" ${cnt>0?'title="该标签有记录，删除后记录不会消失"':''}>删除</button>`;
+    list.appendChild(row);
+  });
+
+  // Re-render with correct selected color
+  TAG_COLORS.forEach((c,i)=>{
+    picker.children[i].classList.toggle('selected', c===selectedColor);
+  });
+  window._addTagCallback=()=>{
+    const name=document.getElementById('newTagName').value.trim(); if(!name) return;
+    S.tags.push({id:'t'+genId(),name,color:selectedColor});
+    save(); showPage('tags');
+  };
+}
+function addTag() { if(window._addTagCallback) window._addTagCallback(); }
+function updateTagName(id, val) { const t=S.tags.find(x=>x.id===id); if(t){t.name=val;save();} }
+function deleteTag(id) {
+  if(!confirm('删除此标签？相关记录中的此标签也会移除。')) return;
+  S.tags=S.tags.filter(t=>t.id!==id);
+  S.entries.forEach(e=>{ e.tags=e.tags.filter(x=>x!==id); });
+  save(); showPage('tags');
+}
+
+// ── PDF export (print current archive scope) ──────────────
+function exportArchivePDF() {
+  let filtered = [...S.entries];
+  let scopeLabel = '全部记录';
+  if (archiveFilter.year) filtered = filtered.filter(e=>e.date.startsWith(archiveFilter.year));
+  if (archiveFilter.month) filtered = filtered.filter(e=>e.date.split('-')[1]===archiveFilter.month);
+  if (archiveFilter.tag) filtered = filtered.filter(e=>e.tags.includes(archiveFilter.tag));
+  if (archiveFilter.search) { const q=archiveFilter.search.toLowerCase(); filtered=filtered.filter(e=>e.title.toLowerCase().includes(q)||e.content.toLowerCase().includes(q)); }
+  filtered.sort((a,b)=>a.date.localeCompare(b.date));
+
+  if (archiveFilter.year && archiveFilter.month) scopeLabel = `${archiveFilter.year}年${parseInt(archiveFilter.month)}月`;
+  else if (archiveFilter.year) scopeLabel = `${archiveFilter.year}年`;
+  else if (archiveFilter.tag) scopeLabel = getTag(archiveFilter.tag)?.name || '';
+
+  if (!filtered.length) { alert('当前筛选没有记录可导出'); return; }
+
+  const entriesHTML = filtered.map(e => {
+    const tags = e.tags.map(id=>{ const t=getTag(id); return t?`<span style="display:inline-block;background:${t.color}22;color:${t.color};border:1px solid ${t.color}55;border-radius:12px;padding:2px 10px;font-size:11px;margin-right:5px">${t.name}</span>`:''; }).join('');
+    return `<div style="margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #E5E2DA;page-break-inside:avoid">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <h3 style="font-size:16px;color:#1A1A1A;margin:0">${escHtml(e.title)}</h3>
+        <span style="font-size:12px;color:#A8A49C">${fmtDate(e.date)}</span>
+      </div>
+      <div style="font-size:13px;color:#4A4A4A;line-height:1.8;white-space:pre-wrap;margin-bottom:8px">${escHtml(e.content)}</div>
+      <div>${tags}</div>
+    </div>`;
+  }).join('');
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>学习记录归档 - ${scopeLabel}</title>
+    <style>
+      body { font-family: -apple-system, "PingFang SC", sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; color: #1A1A1A; }
+      .header { border-bottom: 3px solid #2C4A6E; padding-bottom: 16px; margin-bottom: 28px; }
+      .header h1 { font-size: 24px; color: #2C4A6E; margin: 0 0 4px; }
+      .header .meta { font-size: 13px; color: #6B6860; }
+      @media print { body { padding: 20px; } @page { margin: 1.5cm; } }
+    </style></head><body>
+    <div class="header">
+      <h1>职业知识库 · 学习记录归档</h1>
+      <div class="meta">范围：${scopeLabel} · 共 ${filtered.length} 条记录 · 导出于 ${fmtDate(today())}</div>
+    </div>
+    ${entriesHTML}
+    <div style="margin-top:30px;text-align:center;color:#A8A49C;font-size:11px">— 由职业知识库导出 —</div>
+    <script>setTimeout(()=>window.print(),400);<\/script>
+    </body></html>`);
+  win.document.close();
+}
+
+// ── Data migration: export / import all ───────────────────
+async function exportAllData() {
+  const files = await idbGetAll();
+  // Convert file buffers to base64 for JSON serialization
+  const filesB64 = files.map(f => ({
+    id: f.id, name: f.name, type: f.type, size: f.size, date: f.date,
+    blob: arrayBufferToBase64(f.blob)
+  }));
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    knowledge: { entries: S.entries, tags: S.tags },
+    files: filesB64,
+  };
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `知识库备份_${today()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function importAllData(fileInput) {
+  const file = fileInput.files[0]; if (!file) return;
+  if (!confirm('导入将覆盖当前所有记录、标签和文件，确认继续？')) { fileInput.value=''; return; }
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    if (payload.knowledge) {
+      S.entries = payload.knowledge.entries || [];
+      S.tags = payload.knowledge.tags || DEFAULT_TAGS;
+      save();
+    }
+    if (payload.files) {
+      // Clear existing files then import
+      const existing = await idbGetAll();
+      for (const f of existing) await idbDelete(f.id);
+      for (const f of payload.files) {
+        await idbPut({ id:f.id, name:f.name, type:f.type, size:f.size, date:f.date, blob: base64ToArrayBuffer(f.blob) });
+      }
+    }
+    alert('导入成功！');
+    showPage('record');
+  } catch (err) {
+    alert('导入失败，文件格式可能不正确');
+  }
+  fileInput.value='';
+}
+
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const chunk = 8192;
+  for (let i=0; i<bytes.length; i+=chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  }
+  return btoa(binary);
+}
+function base64ToArrayBuffer(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+// ── Utils ─────────────────────────────────────────────────
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Init ──────────────────────────────────────────────────
+
+// ── Sample data (injected for demo) ──────────────────────
+function injectSampleData() {
+  if (S.entries.length > 0) return; // Don't overwrite real data
+  const samples = [
+    {
+      id: genId(), date: "2026-07-08",
+      title: "FIDIC Silver Book Clause 20 索赔通知要求",
+      content: "今天精读了Clause 20.1，核心要点：\n\n1. 承包商必须在知悉或应当知悉引起索赔的事件后28天内发出通知，否则丧失索赔权利。\n2. 通知必须描述引起索赔的事件或情况。\n3. 同期记录（Contemporary Records）至关重要，需在索赔发生期间同步保存。\n\n实际项目启示：Masdar项目的延误事件需要立刻检查是否在28天内发出了通知，否则索赔基础会被动摇。",
+      tags: ["t1", "t2", "t3"]
+    },
+    {
+      id: genId(), date: "2026-07-07",
+      title: "光伏EPC项目的PR值（Performance Ratio）含义",
+      content: "PR值（性能比）是衡量光伏系统效率的核心指标。\n\n公式：PR = 实际发电量 / 理论发电量\n\n典型合同要求：PR ≥ 0.80（即80%），低于此值业主有权提出性能索赔。\n\n关键影响因素：温度损耗、逆变器效率、线缆损耗、灰尘遮挡。\n\nMPD0003项目需关注：合同中约定的PR测试时间窗口和测试条件，这直接关系到竣工验收和尾款支付。",
+      tags: ["t4", "t1"]
+    },
+    {
+      id: genId(), date: "2026-07-05",
+      title: "索赔谈判英语：开场定位句型",
+      content: "整理了谈判开场常用句型，重点练习：\n\n强势开场：\n- 'We'd like to draw your attention to the impact of the employer-caused delays on our critical path.'\n- 'Our position is that the events described in our notice of claim constitute a variation under Clause 13.'\n\n缓和开场（双赢导向）：\n- 'We believe there's a mutually acceptable resolution here, and we'd like to walk you through our analysis.'\n- 'We're not here to assign blame, but to find a fair and commercial solution.'\n\n感悟：开场定调很重要，缓和型更适合长期合作关系的项目，强势型留给证据充分的情况。",
+      tags: ["t2", "t5", "t6"]
+    },
+    {
+      id: genId(), date: "2026-07-03",
+      title: "EOT申请的因果链（Causation Chain）建立方法",
+      content: "今天学习了如何在EOT报告中建立有说服力的因果链：\n\n结构：触发事件 → 影响活动 → 关键路径延误 → 工期延长\n\n关键文件支撑：\n- 延误事件发生日期的书面证据（信函、会议纪要）\n- 基线进度计划（Baseline Programme）\n- 更新的进度计划（Updated Programme）\n- 同期日志（Daily Reports / Site Diaries）\n\n常见弱点：因果关系断层——只证明了事件发生，但没有证明该事件实际影响了关键路径。\n\n下一步：用Masdar项目的实际数据，尝试梳理一个完整的因果链框架。",
+      tags: ["t2", "t1", "t7"]
+    },
+    {
+      id: genId(), date: "2026-06-30",
+      title: "合同管理中的DAB（争议裁决委员会）机制",
+      content: "FIDIC合同下的争议解决层级：\n\n1. 工程师决定（Engineer's Determination）\n2. DAB（Dispute Adjudication Board）\n3. 友好解决（Amicable Settlement）\n4. 国际仲裁（ICC/LCIA等）\n\nDAB的核心价值：在诉讼/仲裁前提供快速、低成本的争议解决，DAB决定在被推翻前具有约束力（Pay now, argue later原则）。\n\n实务注意：即使对DAB决定不满，仍需先执行，再通过仲裁寻求最终救济。这对现金流管理有重要影响。",
+      tags: ["t1", "t3", "t8"]
+    },
+    {
+      id: genId(), date: "2026-06-28",
+      title: "工作感悟：主动暴露问题 vs 被动等待",
+      content: "这周收到了绩效反馈，核心问题是遇到障碍时倾向于退缩而不是主动暴露和推进。\n\n反思：\n- 之前的习惯：遇到不确定的情况先观望，等有把握再说。\n- 这样的代价：问题积累，到最后才暴露，影响更大。\n\n改变策略：\n- 遇到障碍，48小时内必须有书面记录（邮件或备忘）。\n- 对外沟通提前，给对方留出反应时间。\n- 把「我不确定」也视为一种信息，及时同步。\n\n这不只是合同管理的问题，是职业行为模式的问题。",
+      tags: ["t10", "t7"]
+    },
+    {
+      id: genId(), date: "2026-06-25",
+      title: "新能源EPC项目的典型合同结构",
+      content: "光伏/储能EPC合同与传统EPC的主要差异：\n\n1. 设备采购比重更高（占总价60-70%），设备交货延迟是最常见风险。\n2. 性能保证（Performance Guarantee）条款更复杂，涉及发电量、PR值、可用率等多个指标。\n3. 并网节点（Grid Connection Date）往往是关键里程碑，受外部电网公司控制。\n4. 质保期（Defects Notification Period）通常长达2年，需关注保修条款。\n\n对Masdar项目的启示：混合能源项目（光伏+储能+其他）的接口管理（Interface Management）是风险点，需要明确各子系统的分界面和责任划分。",
+      tags: ["t4", "t1", "t9"]
+    },
+  ];
+  samples.forEach(s => S.entries.push(s));
+  save();
+}
+// injectSampleData(); // disabled for production - starts empty
+
+const d=new Date();
+document.getElementById('topbarDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+document.getElementById('entryModal').onclick=e=>{ if(e.target===document.getElementById('entryModal')) closeModal(); };
+showPage('record');
+</script>
+</body>
+</html>
