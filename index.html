@@ -425,9 +425,11 @@ function renderArchive(el) {
       <div class="archive-content">
         <div class="search-bar" style="margin-bottom:14px">
           <span class="search-icon">🔍</span>
-          <input placeholder="搜索标题或内容..." value="${escHtml(archiveFilter.search)}" oninput="setSearch(this.value)" />
+          <input id="archiveSearchInput" placeholder="搜索标题或内容..." value="${escHtml(archiveFilter.search)}" oninput="onSearchInput(this.value)" />
         </div>
+        <div id="archiveResults">
         ${filtered.length ? filtered.map(e=>makeEntryCard(e).outerHTML).join('') : '<div class="empty"><div class="empty-icon">🗂️</div><div class="empty-text">没有符合条件的记录</div></div>'}
+        </div>
       </div>
     </div>`;
 
@@ -440,6 +442,33 @@ function renderArchive(el) {
   });
 }
 
+// Compute filtered entries based on current archiveFilter
+function getFilteredEntries() {
+  let filtered = [...S.entries];
+  if (archiveFilter.year) filtered = filtered.filter(e=>e.date.startsWith(archiveFilter.year));
+  if (archiveFilter.month) filtered = filtered.filter(e=>e.date.split('-')[1]===archiveFilter.month);
+  if (archiveFilter.tag) filtered = filtered.filter(e=>e.tags.includes(archiveFilter.tag));
+  if (archiveFilter.search) {
+    const q = archiveFilter.search.toLowerCase();
+    filtered = filtered.filter(e=>e.title.toLowerCase().includes(q)||e.content.toLowerCase().includes(q));
+  }
+  filtered.sort((a,b)=>b.date.localeCompare(a.date));
+  return filtered;
+}
+
+// Search input: only update results list, keep input focused
+function onSearchInput(v) {
+  archiveFilter.search = v;
+  const results = document.getElementById('archiveResults');
+  if (!results) return;
+  const filtered = getFilteredEntries();
+  results.innerHTML = filtered.length
+    ? filtered.map(e=>makeEntryCard(e).outerHTML).join('')
+    : '<div class="empty"><div class="empty-icon">🗂️</div><div class="empty-text">没有符合条件的记录</div></div>';
+  results.querySelectorAll('.entry-edit-btn').forEach(btn => { btn.onclick = () => openEdit(btn.dataset.id); });
+  results.querySelectorAll('.entry-del-btn').forEach(btn => { btn.onclick = () => deleteEntry(btn.dataset.id); });
+}
+
 function setFilter(type, val, year) {
   if (type==='year') { archiveFilter.year = archiveFilter.year===val?null:val; archiveFilter.month=null; archiveFilter.tag=null; }
   else if (type==='month') { archiveFilter.year=year; archiveFilter.month=archiveFilter.month===val?null:val; archiveFilter.tag=null; }
@@ -448,6 +477,7 @@ function setFilter(type, val, year) {
 }
 function clearFilter() { archiveFilter={year:null,month:null,tag:null,search:""}; showPage('archive'); }
 function setSearch(v) { archiveFilter.search=v; showPage('archive'); }
+// (search now handled by onSearchInput to preserve input focus)
 
 function makeEntryCard(e) {
   const div = document.createElement('div');
@@ -1020,7 +1050,7 @@ function injectSampleData() {
   samples.forEach(s => S.entries.push(s));
   save();
 }
-// injectSampleData(); // disabled for production - starts empty
+// injectSampleData();
 
 const d=new Date();
 document.getElementById('topbarDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
