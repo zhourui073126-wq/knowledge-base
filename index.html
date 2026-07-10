@@ -89,6 +89,8 @@ label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; 
 .entry-date { font-size: 11px; color: var(--text3); white-space: nowrap; margin-left: 12px; }
 .entry-content { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; }
 .entry-content mark { background: #FFF3A8; padding: 0 2px; border-radius: 2px; }
+.read-more { color: var(--accent2); font-weight: 600; font-size: 12px; white-space: nowrap; }
+#viewContent mark { background: #FFF3A8; padding: 0 2px; border-radius: 2px; }
 
 /* Rich text editor */
 .rte-toolbar { display: flex; gap: 4px; flex-wrap: wrap; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; align-items: center; }
@@ -271,6 +273,23 @@ label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; 
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">取消</button>
       <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- View full entry modal -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+      <div class="modal-title" id="viewTitle" style="margin-bottom:0"></div>
+      <span style="font-size:12px;color:var(--text3);white-space:nowrap;margin-left:12px" id="viewDate"></span>
+    </div>
+    <div id="viewTags" class="tags-row" style="margin-bottom:14px"></div>
+    <div id="viewContent" class="rte-editor" contenteditable="false" style="min-height:auto;border:none;background:transparent;padding:0;font-size:14px;line-height:1.8;color:var(--text)"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteFromView()">删除</button>
+      <button class="btn btn-secondary" onclick="closeViewModal()">关闭</button>
+      <button class="btn btn-primary" onclick="editFromView()">编辑</button>
     </div>
   </div>
 </div>
@@ -517,11 +536,14 @@ function renderArchive(el) {
     </div>`;
 
   // Re-attach event listeners for entry cards
+  el.querySelectorAll('.entry-clickable').forEach(elm => {
+    elm.onclick = () => openView(elm.dataset.id);
+  });
   el.querySelectorAll('.entry-edit-btn').forEach(btn => {
-    btn.onclick = () => openEdit(btn.dataset.id);
+    btn.onclick = (ev) => { ev.stopPropagation(); openEdit(btn.dataset.id); };
   });
   el.querySelectorAll('.entry-del-btn').forEach(btn => {
-    btn.onclick = () => deleteEntry(btn.dataset.id);
+    btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(btn.dataset.id); };
   });
 }
 
@@ -548,8 +570,9 @@ function onSearchInput(v) {
   results.innerHTML = filtered.length
     ? filtered.map(e=>makeEntryCard(e).outerHTML).join('')
     : '<div class="empty"><div class="empty-icon">🗂️</div><div class="empty-text">没有符合条件的记录</div></div>';
-  results.querySelectorAll('.entry-edit-btn').forEach(btn => { btn.onclick = () => openEdit(btn.dataset.id); });
-  results.querySelectorAll('.entry-del-btn').forEach(btn => { btn.onclick = () => deleteEntry(btn.dataset.id); });
+  results.querySelectorAll('.entry-clickable').forEach(elm => { elm.onclick = () => openView(elm.dataset.id); });
+  results.querySelectorAll('.entry-edit-btn').forEach(btn => { btn.onclick = (ev) => { ev.stopPropagation(); openEdit(btn.dataset.id); }; });
+  results.querySelectorAll('.entry-del-btn').forEach(btn => { btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(btn.dataset.id); }; });
 }
 
 function setFilter(type, val, year) {
@@ -582,12 +605,14 @@ function makeEntryCard(e) {
     const t=getTag(id); if(!t) return '';
     return `<span class="tag" style="${tagStyle(id)}">${t.name}</span>`;
   }).join('');
+  const plain = stripHtml(e.content);
+  const isTruncated = plain.length > 200;
   div.innerHTML = `
-    <div class="entry-header">
+    <div class="entry-header entry-clickable" data-id="${e.id}" style="cursor:pointer">
       <div class="entry-title">${escHtml(e.title)}</div>
       <div class="entry-date">${fmtDate(e.date)}</div>
     </div>
-    <div class="entry-content">${contentPreview(e.content)}</div>
+    <div class="entry-content entry-clickable" data-id="${e.id}" style="cursor:pointer">${contentPreview(e.content)}${isTruncated?' <span class="read-more">查看全文 ›</span>':''}</div>
     <div class="entry-footer">
       <div class="tags-row">${tagsHTML}</div>
       <div class="entry-actions">
@@ -595,9 +620,30 @@ function makeEntryCard(e) {
         <button class="btn btn-danger btn-sm entry-del-btn" data-id="${e.id}">删除</button>
       </div>
     </div>`;
-  div.querySelector('.entry-edit-btn').onclick = () => openEdit(e.id);
-  div.querySelector('.entry-del-btn').onclick = () => deleteEntry(e.id);
+  div.querySelectorAll('.entry-clickable').forEach(elm => { elm.onclick = () => openView(e.id); });
+  div.querySelector('.entry-edit-btn').onclick = (ev) => { ev.stopPropagation(); openEdit(e.id); };
+  div.querySelector('.entry-del-btn').onclick = (ev) => { ev.stopPropagation(); deleteEntry(e.id); };
   return div;
+}
+
+// ── View full modal ───────────────────────────────────────
+let viewingId = null;
+function openView(id) {
+  const e = S.entries.find(x=>x.id===id); if(!e) return;
+  viewingId = id;
+  document.getElementById('viewTitle').textContent = e.title;
+  document.getElementById('viewDate').textContent = fmtDate(e.date);
+  document.getElementById('viewContent').innerHTML = e.content || '<span style="color:var(--text3)">（无内容）</span>';
+  const tags = e.tags.map(tid=>{ const t=getTag(tid); return t?`<span class="tag" style="${tagStyle(tid)}">${t.name}</span>`:''; }).join('');
+  document.getElementById('viewTags').innerHTML = tags;
+  document.getElementById('viewModal').classList.add('open');
+}
+function closeViewModal() { document.getElementById('viewModal').classList.remove('open'); viewingId=null; }
+function editFromView() { const id=viewingId; closeViewModal(); openEdit(id); }
+function deleteFromView() {
+  if (!confirm('确认删除这条记录？')) return;
+  S.entries = S.entries.filter(e=>e.id!==viewingId);
+  save(); closeViewModal(); showPage(currentPage);
 }
 
 // ── Edit modal ────────────────────────────────────────────
@@ -1152,6 +1198,7 @@ function injectSampleData() {
 const d=new Date();
 document.getElementById('topbarDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
 document.getElementById('entryModal').onclick=e=>{ if(e.target===document.getElementById('entryModal')) closeModal(); };
+document.getElementById('viewModal').onclick=e=>{ if(e.target===document.getElementById('viewModal')) closeViewModal(); };
 showPage('record');
 </script>
 </body>
